@@ -70,13 +70,13 @@ app.post("/api/submit", async (req, res) => {
     if (!googleRes.ok) {
       const txt = await googleRes.text();
       console.error("Google Forms rejected submission:", txt);
-      return res.status(500).json({ error: "Google Forms rejected the submission" });
+      return res.status(500).json({ error: `Google Forms Error: ${googleRes.status} - ${txt.substring(0, 200)}` });
     }
 
     res.json({ success: true });
   } catch (err: any) {
     console.error("Submit error:", err);
-    res.status(500).json({ error: "Failed to submit" });
+    res.status(500).json({ error: "Failed to submit: " + err.message });
   }
 });
 

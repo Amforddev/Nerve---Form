@@ -13,6 +13,33 @@ export default function App() {
   const TOTAL_STEPS = 4;
   const STEP_NAMES = ["You & your stack", "The problem", "The solution", "Pricing & you"];
 
+  // Add playSuccessChime
+  const playSuccessChime = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      console.error("Audio API not supported", e);
+    }
+  };
+
   useEffect(() => {
     setPulse(true);
     const t = setTimeout(() => setPulse(false), 500);
@@ -53,6 +80,46 @@ export default function App() {
       .finally(() => setLoadingConfig(false));
   }, []);
 
+  // Restore form state
+  useEffect(() => {
+    if (!loadingConfig && config) {
+      const savedStep = localStorage.getItem("nerve_form_step");
+      if (savedStep) {
+        setStep(parseInt(savedStep, 10));
+      }
+      const savedData = localStorage.getItem("nerve_form_data");
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          const form = document.getElementById("nerveForm") as HTMLFormElement;
+          if (form) {
+            Object.entries(parsed).forEach(([key, val]) => {
+              const inputs = form.querySelectorAll(`[name="${key}"]`);
+              if (inputs.length === 0) return;
+              if (inputs[0].type === "radio" || inputs[0].type === "checkbox") {
+                const values = Array.isArray(val) ? val : [val];
+                inputs.forEach((input: any) => {
+                  if (values.includes(input.value)) {
+                    input.checked = true;
+                  }
+                });
+              } else {
+                (inputs[0] as HTMLInputElement).value = val as string;
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to restore form data", e);
+        }
+      }
+    }
+  }, [loadingConfig, config]);
+
+  // Persist step
+  useEffect(() => {
+    localStorage.setItem("nerve_form_step", step.toString());
+  }, [step]);
+
   const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
     const target = e.target as HTMLInputElement;
     if (target.type === "checkbox") {
@@ -66,6 +133,23 @@ export default function App() {
         }
       }
     }
+
+    // Persist data
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data: Record<string, string | string[]> = {};
+    formData.forEach((val, key) => {
+      if (data[key]) {
+        if (Array.isArray(data[key])) {
+          (data[key] as string[]).push(val as string);
+        } else {
+          data[key] = [data[key] as string, val as string];
+        }
+      } else {
+        data[key] = val as string;
+      }
+    });
+    localStorage.setItem("nerve_form_data", JSON.stringify(data));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -168,17 +252,23 @@ export default function App() {
         body: JSON.stringify(data),
       });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to submit");
+      }
       setDone(true);
+      playSuccessChime();
+      localStorage.removeItem("nerve_form_data");
+      localStorage.removeItem("nerve_form_step");
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
         colors: ['#ff2e97', '#15e0e6', '#ffffff']
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Submission failed. Please try again.");
+      alert(err.message || "Submission failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
