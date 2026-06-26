@@ -209,15 +209,7 @@ export default function App() {
     }
   };
 
-  if (loadingConfig) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-sig-cyan" />
-      </div>
-    );
-  }
-
-  if (!config) {
+  if (!loadingConfig && !config) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
         <h1 className="text-3xl font-bold mb-4 font-[Space Grotesk]">Admin Setup</h1>
@@ -307,7 +299,27 @@ export default function App() {
         </div>
 
         <div className="form-shell">
-          {!done ? (
+          {loadingConfig ? (
+            <div className="animate-pulse px-6 py-8">
+              <div className="flex justify-between items-end mb-4">
+                <div className="h-4 w-32 bg-white/10 rounded"></div>
+                <div className="h-4 w-16 bg-white/10 rounded"></div>
+              </div>
+              <div className="h-1 w-full bg-white/5 rounded mb-8"></div>
+              <div className="space-y-6">
+                <div>
+                  <div className="h-5 w-48 bg-white/10 rounded mb-2"></div>
+                  <div className="h-3 w-64 bg-white/5 rounded mb-4"></div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="h-14 bg-white/5 rounded border border-white/5"></div>
+                    <div className="h-14 bg-white/5 rounded border border-white/5"></div>
+                    <div className="h-14 bg-white/5 rounded border border-white/5"></div>
+                    <div className="h-14 bg-white/5 rounded border border-white/5"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : !done ? (
             <>
               <div className="progress-head">
                 <div className="steps-meta">

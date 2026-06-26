@@ -9,11 +9,27 @@ const PORT = 3000;
 
 const CONFIG_PATH = path.join(process.cwd(), "form_config.json");
 
+app.get("/api/firebase-config", async (req, res) => {
+  try {
+    const data = await fs.readFile(path.join(process.cwd(), "firebase-applet-config.json"), "utf-8");
+    res.json(JSON.parse(data));
+  } catch (err) {
+    res.status(404).json({ error: "Firebase config not found" });
+  }
+});
+
 // Read config
 app.get("/api/config", async (req, res) => {
   try {
-    const data = await fs.readFile(CONFIG_PATH, "utf-8");
-    res.json(JSON.parse(data));
+    // Attempt to read from file first for local development updates
+    try {
+      const data = await fs.readFile(CONFIG_PATH, "utf-8");
+      res.json(JSON.parse(data));
+    } catch {
+      // Fallback to static import for deployed environments
+      const staticConfig = await import("./form_config.json");
+      res.json(staticConfig.default || staticConfig);
+    }
   } catch (err) {
     res.json({ configured: false });
   }
@@ -155,10 +171,16 @@ app.post("/api/setup-form", async (req, res) => {
 // Submit proxy
 app.post("/api/submit", async (req, res) => {
   try {
-    const data = await fs.readFile(CONFIG_PATH, "utf-8");
-    const config = JSON.parse(data);
+    let config;
+    try {
+      const data = await fs.readFile(CONFIG_PATH, "utf-8");
+      config = JSON.parse(data);
+    } catch {
+      const staticConfig = await import("./form_config.json");
+      config = staticConfig.default || staticConfig;
+    }
 
-    if (!config.configured) {
+    if (!config || !config.configured) {
       return res.status(400).json({ error: "Form not configured" });
     }
 
