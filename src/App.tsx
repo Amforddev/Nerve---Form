@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import confetti from "canvas-confetti";
-import { Loader2, ShieldCheck, Link, ExternalLink, FileJson, CheckCircle } from "lucide-react";
+import { Loader2, ShieldCheck, Link, ExternalLink, FileJson, CheckCircle, Download, Copy, Check } from "lucide-react";
 import { googleSignIn } from "./firebase";
 import formConfigFallback from "../form_config.json";
 
@@ -10,6 +10,32 @@ function SetupPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [apiConsoleUrl, setApiConsoleUrl] = useState<string | null>(null);
   const [configResult, setConfigResult] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+  const [inIframe, setInIframe] = useState(false);
+
+  useEffect(() => {
+    setInIframe(window.self !== window.top);
+  }, []);
+
+  const handleCopy = () => {
+    if (!configResult) return;
+    navigator.clipboard.writeText(JSON.stringify(configResult, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    if (!configResult) return;
+    const blob = new Blob([JSON.stringify(configResult, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "form_config.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleSetup = async () => {
     setLoading(true);
@@ -40,6 +66,7 @@ function SetupPage() {
       setConfigResult(data);
       setIsSuccess(true);
       setMessage("Google Form successfully created and permanently linked to your account! The app is now configured.");
+      localStorage.setItem("nerve_form_config", JSON.stringify(data));
       
       confetti({
         particleCount: 80,
@@ -49,7 +76,15 @@ function SetupPage() {
       });
     } catch (err: any) {
       console.error(err);
-      setMessage(err.message || "An unexpected error occurred during setup.");
+      let errorMsg = err.message || "An unexpected error occurred during setup.";
+      if (err.code === "auth/popup-closed-by-user" || err.message?.includes("popup-closed-by-user")) {
+        errorMsg = "Google Sign-In popup was closed before completion. If you are inside the AI Studio preview, please click the 'Open Setup in New Tab' button above to avoid iframe cookie restrictions.";
+      } else if (err.code === "auth/network-request-failed" || err.message?.includes("network-request-failed") || err.message?.includes("auth/iframe")) {
+        errorMsg = "Google Sign-In failed due to browser iframe security limits (third-party cookies are blocked). Please click the 'Open Setup in New Tab' button above to complete setup successfully in a top-level browser tab!";
+      } else if (err.message?.includes("Assertion failed") || err.message?.includes("Pending promise")) {
+        errorMsg = "Firebase Authentication iframe handshake failed because third-party storage is disabled in this iframe. Clicking 'Open Setup in New Tab' above will bypass this and work instantly!";
+      }
+      setMessage(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -65,6 +100,27 @@ function SetupPage() {
         <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-[#ff2e97]/5 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative">
+          {inIframe && (
+            <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-xs leading-relaxed space-y-3 shadow-md">
+              <div className="flex items-start space-x-2.5">
+                <span className="text-base leading-none">⚠️</span>
+                <p>
+                  <b>Running inside Preview Frame:</b> Standard Google Sign-In is restricted by modern browser cookie privacy rules inside cross-origin iframes.
+                </p>
+              </div>
+              <div className="pl-6">
+                <button
+                  type="button"
+                  onClick={() => window.open(window.location.href, "_blank")}
+                  className="py-1.5 px-3 bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 rounded-lg font-semibold border border-amber-500/30 transition-all text-[11px] cursor-pointer flex items-center space-x-1.5 shadow-sm"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Setup in New Tab</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400">
               <ShieldCheck className="w-6 h-6" />
@@ -92,7 +148,7 @@ function SetupPage() {
               </div>
 
               {configResult && (
-                <div className="bg-white/5 border border-white/5 rounded-xl p-4 font-mono text-xs space-y-3">
+                <div className="bg-white/5 border border-white/5 rounded-xl p-4 font-mono text-xs space-y-4">
                   <div className="flex justify-between border-b border-white/5 pb-2">
                     <span className="text-white/40">Form ID:</span>
                     <span className="text-cyan-400 select-all">{configResult.formId}</span>
@@ -109,14 +165,43 @@ function SetupPage() {
                       <ExternalLink className="w-3 h-3 ml-1 shrink-0" />
                     </a>
                   </div>
-                  <div className="pt-2">
+
+                  <div className="pt-2 border-t border-white/5 flex gap-2">
+                    <button
+                      onClick={handleDownload}
+                      className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 active:bg-white/15 transition-all text-white border border-white/10 rounded-lg font-medium text-xs flex items-center justify-center space-x-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download form_config.json</span>
+                    </button>
+                    <button
+                      onClick={handleCopy}
+                      className="py-2 px-3 bg-white/5 hover:bg-white/10 active:bg-white/15 transition-all text-white border border-white/10 rounded-lg font-medium text-xs flex items-center justify-center space-x-1.5 w-24"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy JSON</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="pt-2 border-t border-white/5">
                     <div className="text-white/40 mb-1 flex items-center">
                       <FileJson className="w-3.5 h-3.5 mr-1" />
                       Status:
                     </div>
                     <p className="text-white/70 text-[11px] leading-relaxed">
-                      Configuration is written to <code className="text-cyan-300">form_config.json</code>. 
-                      Since it is bundled, your deployed app will submit responses directly to this form with zero server logic!
+                      This setup wrote the configuration locally and saved it to this browser's <code className="text-cyan-300">localStorage</code>. This browser can submit responses instantly!
+                    </p>
+                    <p className="text-white/50 text-[10px] mt-2 leading-relaxed">
+                      👉 <b>Deploying to Vercel/Production?</b> Click "Download form_config.json" above, place it in your project's root folder (replacing the empty config), commit, and push to GitHub. Vercel will work perfectly with zero backend servers!
                     </p>
                   </div>
                 </div>
@@ -223,6 +308,11 @@ function MainForm() {
   const [pulse, setPulse] = useState(false);
   const TOTAL_STEPS = 4;
   const STEP_NAMES = ["You & your stack", "The problem", "The solution", "Pricing & you"];
+  const [inIframe, setInIframe] = useState(false);
+
+  useEffect(() => {
+    setInIframe(window.self !== window.top);
+  }, []);
 
   // Add playSuccessChime
   const playSuccessChime = () => {
@@ -283,16 +373,42 @@ function MainForm() {
 
   useEffect(() => {
     fetch("/api/config")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (data && data.configured) {
           setConfig(data);
-        } else if (formConfigFallback && formConfigFallback.configured) {
-          setConfig(formConfigFallback);
+        } else {
+          // Check localStorage fallback
+          const localConfig = localStorage.getItem("nerve_form_config");
+          if (localConfig) {
+            try {
+              const parsed = JSON.parse(localConfig);
+              if (parsed && parsed.configured) {
+                setConfig(parsed);
+                return;
+              }
+            } catch {}
+          }
+          if (formConfigFallback && formConfigFallback.configured) {
+            setConfig(formConfigFallback);
+          }
         }
       })
       .catch((err) => {
-        console.warn("Dynamic config fetch failed, using bundled fallback config:", err);
+        console.warn("Dynamic config fetch failed, checking local fallbacks:", err);
+        const localConfig = localStorage.getItem("nerve_form_config");
+        if (localConfig) {
+          try {
+            const parsed = JSON.parse(localConfig);
+            if (parsed && parsed.configured) {
+              setConfig(parsed);
+              return;
+            }
+          } catch {}
+        }
         if (formConfigFallback && formConfigFallback.configured) {
           setConfig(formConfigFallback);
         }
@@ -316,7 +432,8 @@ function MainForm() {
             Object.entries(parsed).forEach(([key, val]) => {
               const inputs = form.querySelectorAll(`[name="${key}"]`);
               if (inputs.length === 0) return;
-              if (inputs[0].type === "radio" || inputs[0].type === "checkbox") {
+              const firstInput = inputs[0] as HTMLInputElement;
+              if (firstInput.type === "radio" || firstInput.type === "checkbox") {
                 const values = Array.isArray(val) ? val : [val];
                 inputs.forEach((input: any) => {
                   if (values.includes(input.value)) {
@@ -609,6 +726,43 @@ function MainForm() {
                     <div className="h-14 bg-white/5 rounded border border-white/5"></div>
                   </div>
                 </div>
+              </div>
+            </div>
+          ) : !config || !config.configured ? (
+            <div className="p-8 text-center text-[#A0A5B5] space-y-6">
+              <div className="w-12 h-12 rounded-full bg-[#ff2e97]/10 border border-[#ff2e97]/20 flex items-center justify-center mx-auto text-[#ff2e97]">
+                <Link className="w-6 h-6" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-white">Google Form Connection Required</h3>
+                <p className="text-sm text-white/60 max-w-md mx-auto leading-relaxed">
+                  Nerve is designed to submit feedback directly to your Google Form. 
+                  Please run the administrator setup to link a Google Form.
+                </p>
+              </div>
+              
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    if (inIframe) {
+                      window.open(window.location.origin + "/?setup=admin", "_blank");
+                    } else {
+                      window.location.search = "?setup=admin";
+                    }
+                  }}
+                  className="px-6 py-2.5 bg-white text-black hover:bg-white/95 active:bg-white/90 transition-all rounded-xl font-medium text-sm shadow flex items-center space-x-2 cursor-pointer"
+                >
+                  <span>Connect Google Form</span>
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 text-left max-w-md mx-auto space-y-2">
+                <h4 className="text-xs font-semibold text-white/80 uppercase tracking-wider">Already completed setup elsewhere?</h4>
+                <p className="text-xs text-white/50 leading-relaxed">
+                  If you set up the form on another device or the local preview, please click "Connect Google Form" above, 
+                  sign in with Google to fetch/restore the setup instantly in this browser, OR place the downloaded <code className="text-cyan-400">form_config.json</code> in your project's root and redeploy to Vercel!
+                </p>
               </div>
             </div>
           ) : !done ? (

@@ -1,0 +1,34 @@
+{
+  "entities": {
+    "GoogleFormConfig": {
+      "title": "GoogleFormConfig",
+      "description": "Configuration mapping for client-side Google Form submission",
+      "type": "object",
+      "properties": {
+        "configured": {
+          "type": "boolean",
+          "description": "Whether the form is configured"
+        },
+        "formId": {
+          "type": "string",
+          "description": "The Google Form ID"
+        },
+        "actionUrl": {
+          "type": "string",
+          "description": "The URL to submit form responses to"
+        },
+        "entryMapping": {
+          "type": "object",
+          "description": "Mapping from field keys to Google Form entry IDs"
+        }
+      },
+      "required": ["configured", "formId", "actionUrl", "entryMapping"]
+    }
+  },
+  "firestore": {
+    "/configs/{configId}": {
+      "schema": "GoogleFormConfig",
+      "description": "Public read, admin write configuration documents"
+    }
+  }
+}

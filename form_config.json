@@ -1,6 +1,26 @@
 {
-  "configured": false,
-  "formId": "",
-  "actionUrl": "",
-  "entryMapping": {}
+  "configured": true,
+  "formId": "1sByUCIUhUg5tv9tm4b4p33wwgpEJkpkwXc78urOeV-8",
+  "actionUrl": "https://docs.google.com/forms/d/e/1FAIpQLSev4ewSgUE9xQQfgOjXMJPsUG-hB-7S_egP4ySpETU84l2UVg/formResponse",
+  "entryMapping": {
+    "role": "entry.505913216",
+    "company_size": "entry.1610225077",
+    "regions": "entry.2087656048",
+    "volume": "entry.899078401",
+    "channels": "entry.398373748",
+    "problems": "entry.484674050",
+    "severity": "entry.849970504",
+    "cost": "entry.333590553",
+    "current_stack": "entry.163392473",
+    "likelihood": "entry.447464824",
+    "top_features": "entry.1251537224",
+    "barriers": "entry.1014218993",
+    "budget": "entry.1082362125",
+    "price_too_high": "entry.1191258858",
+    "price_too_low": "entry.1386617657",
+    "addons": "entry.1494893",
+    "early_access": "entry.1820164563",
+    "email": "entry.1426800476",
+    "comments": "entry.234797668"
+  }
 }
