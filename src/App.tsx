@@ -1,8 +1,70 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import confetti from "canvas-confetti";
 import { Loader2 } from "lucide-react";
+import { googleSignIn } from "./firebase";
+
+function SetupPage() {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleSetup = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const result = await googleSignIn();
+      if (!result?.accessToken) throw new Error("No access token");
+
+      const res = await fetch("/api/setup-form", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${result.accessToken}`
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to setup");
+      
+      setMessage("Form successfully created and linked to your account! You can now use the app.");
+    } catch (err: any) {
+      console.error(err);
+      setMessage("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: 40, color: "white", fontFamily: "sans-serif" }}>
+      <h1>Admin Setup</h1>
+      <p>Click below to link this app to your Google account and create the form.</p>
+      <button 
+        onClick={handleSetup} 
+        disabled={loading}
+        style={{ padding: "10px 20px", background: "white", color: "black", borderRadius: 4, border: "none", cursor: "pointer", marginTop: 20 }}
+      >
+        {loading ? "Setting up..." : "Sign in with Google & Setup"}
+      </button>
+      {message && <p style={{ marginTop: 20 }}>{message}</p>}
+    </div>
+  );
+}
 
 export default function App() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const onPopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  if (path === "/setup") {
+    return <SetupPage />;
+  }
+
+  return <MainForm />;
+}
+
+function MainForm() {
   const [config, setConfig] = useState<any>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
 
@@ -253,8 +315,14 @@ export default function App() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to submit");
+        let errorMessage = "Failed to submit";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseErr) {
+          errorMessage = `Server Error (${res.status}). The form is not connected.`;
+        }
+        throw new Error(errorMessage);
       }
       setDone(true);
       playSuccessChime();
