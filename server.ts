@@ -45,7 +45,14 @@ app.post("/api/setup-form", async (req, res) => {
     if (!createRes.ok) {
       const errText = await createRes.text();
       console.error("Failed to create form:", errText);
-      return res.status(500).json({ error: "Failed to create Google Form" });
+      let errorMsg = "Failed to create Google Form";
+      try {
+        const parsed = JSON.parse(errText);
+        if (parsed.error && parsed.error.message) {
+          errorMsg = parsed.error.message;
+        }
+      } catch {}
+      return res.status(createRes.status).json({ error: errorMsg });
     }
 
     const formData = await createRes.json();

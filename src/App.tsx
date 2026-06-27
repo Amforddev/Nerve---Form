@@ -1,18 +1,24 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import confetti from "canvas-confetti";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Link, ExternalLink, FileJson, CheckCircle } from "lucide-react";
 import { googleSignIn } from "./firebase";
+import formConfigFallback from "../form_config.json";
 
 function SetupPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [apiConsoleUrl, setApiConsoleUrl] = useState<string | null>(null);
+  const [configResult, setConfigResult] = useState<any>(null);
 
   const handleSetup = async () => {
     setLoading(true);
     setMessage("");
+    setApiConsoleUrl(null);
+    setIsSuccess(false);
     try {
       const result = await googleSignIn();
-      if (!result?.accessToken) throw new Error("No access token");
+      if (!result?.accessToken) throw new Error("No access token received from Google sign in");
 
       const res = await fetch("/api/setup-form", {
         method: "POST",
@@ -21,43 +27,186 @@ function SetupPage() {
         }
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to setup");
+      if (!res.ok) {
+        // Attempt to extract the developer console URL if Forms API is disabled
+        const errorText = data.error || "Failed to setup";
+        const urlMatch = errorText.match(/https:\/\/console\.developers\.google\.com\/[^\s]*/);
+        if (urlMatch) {
+          setApiConsoleUrl(urlMatch[0]);
+        }
+        throw new Error(errorText);
+      }
       
-      setMessage("Form successfully created and linked to your account! You can now use the app.");
+      setConfigResult(data);
+      setIsSuccess(true);
+      setMessage("Google Form successfully created and permanently linked to your account! The app is now configured.");
+      
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#ff2e97', '#15e0e6', '#ffffff']
+      });
     } catch (err: any) {
       console.error(err);
-      setMessage("Error: " + err.message);
+      setMessage(err.message || "An unexpected error occurred during setup.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 40, color: "white", fontFamily: "sans-serif" }}>
-      <h1>Admin Setup</h1>
-      <p>Click below to link this app to your Google account and create the form.</p>
-      <button 
-        onClick={handleSetup} 
-        disabled={loading}
-        style={{ padding: "10px 20px", background: "white", color: "black", borderRadius: 4, border: "none", cursor: "pointer", marginTop: 20 }}
-      >
-        {loading ? "Setting up..." : "Sign in with Google & Setup"}
-      </button>
-      {message && <p style={{ marginTop: 20 }}>{message}</p>}
+    <div className="min-h-screen bg-[#0B0D13] flex items-center justify-center p-6 text-[#A0A5B5] font-sans">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#151821_1px,transparent_1px),linear-gradient(to_bottom,#151821_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+      
+      <div className="relative max-w-xl w-full bg-[#12151D] border border-white/5 rounded-2xl p-8 shadow-2xl overflow-hidden">
+        {/* Glow effect */}
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-[#ff2e97]/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Nerve Control Plane</div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Admin & Form Setup</h1>
+            </div>
+          </div>
+
+          <p className="text-sm leading-relaxed mb-8 text-white/60">
+            Link this feedback platform permanently to your Google Forms account. 
+            When users submit responses, they will go directly to your personal Google Form client-side, 
+            which operates completely without server dependencies when deployed to production.
+          </p>
+
+          {isSuccess ? (
+            <div className="space-y-6">
+              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start space-x-3 text-emerald-400">
+                <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-white">Setup Succeeded!</h3>
+                  <p className="text-xs mt-1 text-emerald-400/80">{message}</p>
+                </div>
+              </div>
+
+              {configResult && (
+                <div className="bg-white/5 border border-white/5 rounded-xl p-4 font-mono text-xs space-y-3">
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="text-white/40">Form ID:</span>
+                    <span className="text-cyan-400 select-all">{configResult.formId}</span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-white/40">Form Responder URL:</span>
+                    <a 
+                      href={configResult.actionUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-white/80 hover:text-white underline truncate flex items-center"
+                    >
+                      {configResult.actionUrl}
+                      <ExternalLink className="w-3 h-3 ml-1 shrink-0" />
+                    </a>
+                  </div>
+                  <div className="pt-2">
+                    <div className="text-white/40 mb-1 flex items-center">
+                      <FileJson className="w-3.5 h-3.5 mr-1" />
+                      Status:
+                    </div>
+                    <p className="text-white/70 text-[11px] leading-relaxed">
+                      Configuration is written to <code className="text-cyan-300">form_config.json</code>. 
+                      Since it is bundled, your deployed app will submit responses directly to this form with zero server logic!
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => window.location.href = "/"}
+                className="w-full py-3 bg-white text-black hover:bg-white/95 transition-all rounded-lg font-medium text-sm shadow-lg flex items-center justify-center space-x-2"
+              >
+                <span>Go to Form Application</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <button
+                onClick={handleSetup}
+                disabled={loading}
+                className="w-full flex items-center justify-center space-x-3 bg-white hover:bg-white/95 active:bg-white/90 disabled:opacity-50 transition-all text-black py-3 px-4 rounded-xl font-medium text-sm shadow-md cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Configuring Nerve Connection...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" viewBox="0 0 48 48">
+                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    </svg>
+                    <span>Sign in with Google & Link Form</span>
+                  </>
+                )}
+              </button>
+
+              {message && (
+                <div className={`p-4 rounded-xl text-xs border ${apiConsoleUrl ? 'bg-[#ff2e97]/10 border-[#ff2e97]/20 text-[#ff2e97]' : 'bg-white/5 border-white/5 text-white/80'}`}>
+                  <p className="font-mono leading-relaxed">{message}</p>
+                  
+                  {apiConsoleUrl && (
+                    <div className="mt-4 pt-4 border-t border-[#ff2e97]/10 space-y-2">
+                      <p className="text-white/90 font-sans font-semibold">Action required:</p>
+                      <p className="text-white/60 font-sans leading-relaxed">
+                        To automatically generate forms on your Google Drive, you must enable the Google Forms API in your Google Cloud Project. 
+                        Click the button below to open Google Cloud Console and enable it with one click, then retry:
+                      </p>
+                      <a
+                        href={apiConsoleUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 bg-[#ff2e97] hover:bg-[#ff2e97]/90 text-white font-sans font-medium px-4 py-2.5 rounded-lg transition-all shadow-md mt-2 text-xs"
+                      >
+                        <span>Enable Google Forms API</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="mt-12 pt-6 border-t border-white/5 text-center">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/30">
+              Nerve · Project Camry · Secure Auth Loop
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function App() {
   const [path, setPath] = useState(window.location.pathname);
+  const [search, setSearch] = useState(window.location.search);
 
   useEffect(() => {
-    const onPopState = () => setPath(window.location.pathname);
+    const onPopState = () => {
+      setPath(window.location.pathname);
+      setSearch(window.location.search);
+    };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  if (path === "/setup") {
+  // Hidden admin setup path / search parameter
+  if (path === "/setup-admin" || search === "?setup=admin") {
     return <SetupPage />;
   }
 
@@ -136,9 +285,18 @@ function MainForm() {
     fetch("/api/config")
       .then((res) => res.json())
       .then((data) => {
-        if (data.configured) setConfig(data);
+        if (data && data.configured) {
+          setConfig(data);
+        } else if (formConfigFallback && formConfigFallback.configured) {
+          setConfig(formConfigFallback);
+        }
       })
-      .catch((err) => console.error(err))
+      .catch((err) => {
+        console.warn("Dynamic config fetch failed, using bundled fallback config:", err);
+        if (formConfigFallback && formConfigFallback.configured) {
+          setConfig(formConfigFallback);
+        }
+      })
       .finally(() => setLoadingConfig(false));
   }, []);
 
@@ -308,21 +466,52 @@ function MainForm() {
         }
       });
 
-      const res = await fetch("/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      if (config && config.actionUrl) {
+        // Construct standard URL-encoded parameters for Google Forms
+        const params = new URLSearchParams();
+        for (const [key, val] of Object.entries(data)) {
+          const entryId = config.entryMapping[key];
+          if (!entryId) continue;
 
-      if (!res.ok) {
-        let errorMessage = "Failed to submit";
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (parseErr) {
-          errorMessage = `Server Error (${res.status}). The form is not connected.`;
+          if (Array.isArray(val)) {
+            val.forEach((v) => {
+              if (v) params.append(entryId, String(v));
+            });
+          } else {
+            if (val !== undefined && val !== null && val !== "") {
+              params.append(entryId, String(val));
+            }
+          }
         }
-        throw new Error(errorMessage);
+
+        // Submit directly client-side. We use 'no-cors' mode because Google Forms 
+        // does not set CORS headers, but will successfully record the submission.
+        await fetch(config.actionUrl, {
+          method: "POST",
+          body: params,
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+      } else {
+        // Fallback to local server proxy in dev environments
+        const res = await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!res.ok) {
+          let errorMessage = "Failed to submit";
+          try {
+            const errorData = await res.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (parseErr) {
+            errorMessage = `Server Error (${res.status}). The form is not connected.`;
+          }
+          throw new Error(errorMessage);
+        }
       }
       setDone(true);
       playSuccessChime();
@@ -347,7 +536,6 @@ function MainForm() {
       <div className="field-bg"></div>
       <div className="wrap">
         <header>
-          <div className="badge">Project Camry · Notification-as-a-Service</div>
           <h1>One nerve for<br /><span className="grad">every signal you send</span></h1>
           <p className="sub">Nerve is a single API that routes notifications across SMS, WhatsApp, push and email — built to ingest a million requests a second and survive the markets where everyone else drops the packet.</p>
           <div className="signal-line"></div>
