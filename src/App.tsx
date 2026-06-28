@@ -126,7 +126,7 @@ function SetupPage() {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Nerve Control Plane</div>
+              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Neupo Control Plane</div>
               <h1 className="text-xl font-bold text-white tracking-tight">Admin & Form Setup</h1>
             </div>
           </div>
@@ -224,7 +224,7 @@ function SetupPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Configuring Nerve Connection...</span>
+                    <span>Configuring Neupo Connection...</span>
                   </>
                 ) : (
                   <>
@@ -268,7 +268,7 @@ function SetupPage() {
 
           <div className="mt-12 pt-6 border-t border-white/5 text-center">
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/30">
-              Nerve · Project Camry · Secure Auth Loop
+              Neupo · Project Camry · Secure Auth Loop
             </p>
           </div>
         </div>
@@ -653,58 +653,66 @@ function MainForm() {
       <div className="field-bg"></div>
       <div className="wrap">
         <header>
-          <h1>One nerve for<br /><span className="grad">every signal you send</span></h1>
-          <p className="sub">Nerve is a single API that routes notifications across SMS, WhatsApp, push and email — built to ingest a million requests a second and survive the markets where everyone else drops the packet.</p>
-          <div className="signal-line"></div>
+          <h1>One API for<br /><span className="grad">every notification<br/>you send</span></h1>
+          <p className="sub">Neupo is the single API your product calls to deliver <b>OTPs,<br/>alerts and campaigns</b> across SMS, WhatsApp, push and email<br/>— every provider, every market, behind one integration.</p>
+          
+          <div className="flex flex-col sm:flex-row items-stretch justify-center gap-6 mt-12 mb-4 max-w-4xl mx-auto">
+            <div className="card !m-0 !p-6 text-left relative z-10 flex-1">
+              <p className="eyebrow !text-[var(--muted-2)] !mb-4 tracking-widest text-[11px]">TODAY</p>
+              <p className="text-[13.5px] leading-[1.6] text-[var(--muted)] m-0">Twilio for SMS, SendGrid for email, FCM for push, a regional provider for Africa — plus the routing, failover & compliance you build between them.</p>
+            </div>
+            
+            <div className="text-[var(--sig-violet)] hidden sm:flex items-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+            <div className="text-[var(--sig-violet)] sm:hidden rotate-90 flex justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+
+            <div className="card solution !m-0 !p-6 text-left relative z-10 flex-1">
+              <p className="eyebrow !text-[var(--sig-cyan)] !mb-4 tracking-widest text-[11px]">WITH NEUPO</p>
+              <p className="text-[13.5px] leading-[1.6] text-[var(--text)] m-0">One <code className="bg-white/5 px-1.5 py-0.5 rounded text-[13px] font-mono text-[var(--sig-magenta)]">POST /send</code>. Every channel, provider and market behind a single integration.</p>
+            </div>
+          </div>
+          
+          <div className="signal-line mt-12"></div>
         </header>
 
         <section className="story">
           <div className="card problem">
-            <p className="eyebrow">▲ The friction</p>
-            <h3>A provider degrades at 2am —<br/>and you hear it from users, not<br/>your dashboards</h3>
-            <p>The worst night in notification infra: a provider silently fails in one region. OTPs stop landing. Nothing in your monitoring fires — because every provider reports delivery in its own format — so you find out from a pile of "I never got my code" tickets.</p>
-            <div className="scenario">
-              <p className="tag">▸ The 2am page</p>
-              <p>Logins are failing across a whole country.<br/>Your provider's status page is green,<br/>your delivery-report parser quietly<br/>swallowed the error, and there's no<br/>automatic fallback to a second provider.<br/>So an engineer wakes up, reroutes traffic<br/>by hand, and writes the post-mortem —<br/>while signups churn in real time.</p>
-            </div>
+            <p className="eyebrow">▲ THE FRICTION</p>
+            <h3>You're not in the notifications<br/>business — but you maintain its<br/>whole stack</h3>
             <ul>
-              <li>No automatic failover — someone gets<br/>paged to reroute by hand</li>
-              <li>Every provider's delivery report is a<br/>different schema you parse, then re-parse<br/>when they change it</li>
-              <li>One burst — a flash sale, a breaking alert<br/>— locks your synchronous send path</li>
-              <li>The idempotency you rolled yourself still<br/>double-fires OTPs during retry storms</li>
-              <li>"Did this user actually get the message?"<br/>takes four dashboards to answer</li>
+              <li>A separate provider & SDK per channel<br/>and region — plus the routing and failover<br/>glue you own forever</li>
+              <li>A provider degrades overnight, OTPs stop<br/>landing, and someone gets paged to<br/>reroute by hand</li>
+              <li>Compliance stitched into app code, and<br/>no single answer to "did it deliver?"</li>
             </ul>
             <div className="stats">
-              <div className="stat"><div className="num">4-6</div><div className="lbl">provider SDKs<br/>one team<br/>stitches together<br/>and maintains by<br/>hand</div></div>
-              <div className="stat"><div className="num">0 alerts</div><div className="lbl">fire before your<br/>users do when a<br/>provider silently<br/>degrades</div></div>
-              <div className="stat"><div className="num">hours</div><div className="lbl">to trace a single<br/>failed message<br/>across separate<br/>dashboards</div></div>
+              <div className="stat"><div className="num">4-6</div><div className="lbl">provider<br/>integrations<br/>stitched together<br/>for coverage</div></div>
+              <div className="stat"><div className="num">weeks</div><div className="lbl">to add each new<br/>channel or<br/>region, by hand</div></div>
+              <div className="stat"><div className="num">hours</div><div className="lbl">to trace one<br/>failed message<br/>across<br/>dashboards</div></div>
             </div>
-            <p className="impact"><b>What it means for you:</b> your most senior<br/>engineers are permanently on-call for<br/>plumbing, and your worst outages land<br/>on the exact flows that gate revenue —<br/>login, checkout, OTP — while you debug<br/>them blind.</p>
+            <p className="impact"><b>For you:</b> senior engineers stuck on<br/>plumbing — and the cracks land on login,<br/>checkout and OTP.</p>
           </div>
           <div className="card solution">
-            <p className="eyebrow">◆ The signal</p>
-            <h3>The plumbing fails over before<br/>you ever get paged</h3>
-            <p>Nerve sits in front of every provider, watches delivery in real time, and reroutes automatically — so the 2am page never gets sent and you get one honest answer to "did it deliver?"</p>
+            <p className="eyebrow">◆ THE FIX</p>
+            <h3>One call sends it everywhere —<br/>Neupo handles the rest</h3>
             <ul>
-              <li>Automatic failover — provider returns 5xx,<br/>the next one in line takes the send</li>
-              <li>One normalized delivery stream across<br/>every provider, in real time</li>
-              <li>Exactly-once API — idempotency keys<br/>absorb retry storms, no double OTPs</li>
-              <li>1M RPS ingestion on a cell-based<br/>backbone — async by default, no locked<br/>send path</li>
-              <li>Pre-flight DND checks + AI send-time<br/>optimization, built in</li>
+              <li>One endpoint for SMS, WhatsApp, push &<br/>email — every provider behind it</li>
+              <li>Automatic failover, cost-based routing &<br/>exactly-once delivery, built in</li>
+              <li>Pre-flight compliance, data residency &<br/>one delivery dashboard — not your code</li>
             </ul>
             <div className="stats">
               <div className="stat"><div className="num">1M/sec</div><div className="lbl">requests<br/>ingested with<br/>zero data loss</div></div>
               <div className="stat"><div className="num">99.99%</div><div className="lbl">uptime, backed<br/>by an SLA</div></div>
               <div className="stat"><div className="num">99.5%+</div><div className="lbl">transactional<br/>messages<br/>delivered</div></div>
             </div>
-            <p className="impact"><b>What it means for you:</b> your senior<br/>engineers ship product instead of<br/>babysitting providers, the revenue-<br/>critical flows stay up when traffic spikes,<br/>and "did it deliver?" is one dashboard —<br/>not a 2am investigation.</p>
+            <p className="impact"><b>For you:</b> delete the integration layer —<br/>reaching any user on any channel<br/>becomes one call you can trust.</p>
           </div>
         </section>
 
-        <p className="statnote">Friction figures are illustrative of what teams typically run into; signal figures are Nerve's engineering targets.</p>
-
         <div className="leadin">
-          <p>We're building Nerve now — and we want to build it around <span className="k">your</span> reality, not a slide deck. Five minutes of honest answers shapes what ships first. <span className="k">No sales follow-up unless you ask for it.</span></p>
+          <p>We're building Neupo now and want it shaped around <span className="k">your</span> reality. Five<br/>minutes of honest answers decides what ships first. <span className="k">No sales follow-up<br/>unless you ask.</span></p>
         </div>
 
         <div className="form-shell">
@@ -736,7 +744,7 @@ function MainForm() {
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-white">Google Form Connection Required</h3>
                 <p className="text-sm text-white/60 max-w-md mx-auto leading-relaxed">
-                  Nerve is designed to submit feedback directly to your Google Form. 
+                  Neupo is designed to submit feedback directly to your Google Form. 
                   Please run the administrator setup to link a Google Form.
                 </p>
               </div>
@@ -903,7 +911,7 @@ function MainForm() {
                 {/* STEP 3 */}
                 <div className={`step ${step === 3 ? "active" : ""}`} data-step="3">
                   <div className="q" data-key="likelihood" data-required>
-                    <label className="qlabel">If Nerve existed today, how likely would you be to try it?<span className="req">*</span></label>
+                    <label className="qlabel">If Neupo existed today, how likely would you be to try it?<span className="req">*</span></label>
                     <p className="hint">0 = wouldn't touch it · 10 = take my integration now.</p>
                     <div className="scale ten">
                       {[0,1,2,3,4,5,6,7,8,9,10].map(v => (
@@ -933,7 +941,7 @@ function MainForm() {
                   </div>
 
                   <div className="q" data-key="barriers">
-                    <label className="qlabel">What would stop you from adopting something like Nerve?</label>
+                    <label className="qlabel">What would stop you from adopting something like Neupo?</label>
                     <div className="opts grid">
                       {["Migration effort", "Vendor lock-in concern", "Trust / reliability of a new vendor", "Price", "Security / data privacy", "Nothing major — we'd try it"].map(v => (
                         <label className="opt" key={v}>
@@ -963,7 +971,7 @@ function MainForm() {
                   </div>
 
                   <div className="q" data-key="price_too_high" data-required>
-                    <label className="qlabel">At what per-1,000-requests price would Nerve feel too expensive to justify?<span className="req">*</span></label>
+                    <label className="qlabel">At what per-1,000-requests price would Neupo feel too expensive to justify?<span className="req">*</span></label>
                     <div className="opts grid">
                       {["Over $0.10 / 1K", "Over $0.50 / 1K", "Over $1 / 1K", "Over $5 / 1K"].map(v => (
                         <label className="opt" data-type="radio" key={v}>
@@ -1064,7 +1072,7 @@ function MainForm() {
           )}
         </div>
 
-        <footer>NERVE · PROJECT CAMRY — built for the signals that can't drop</footer>
+        <footer>NEUPO · PROJECT CAMRY — built for the signals that can't drop</footer>
       </div>
     </>
   );
