@@ -17,9 +17,10 @@ export const initFirebase = async () => {
   if (app) return;
   try {
     const res = await fetch('/api/firebase-config');
-    if (!res.ok) {
-      if (res.status === 404) {
-        console.warn('Firebase config not found (status 404). Operating without Firebase.');
+    const contentType = res.headers.get('content-type');
+    if (!res.ok || (contentType && contentType.includes('text/html'))) {
+      if (res.status === 404 || (contentType && contentType.includes('text/html'))) {
+        console.warn('Firebase config not found or returned HTML. Operating without Firebase.');
         return;
       }
       throw new Error(`Firebase config endpoint returned status ${res.status}`);

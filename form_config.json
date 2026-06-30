@@ -1,3 +1,26 @@
 {
-  "configured": false
+  "configured": true,
+  "formId": "1o7Z6Z1GF75n6fj6mztDm2X_fMve2of__FG5Q8TTxNfU",
+  "actionUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdUcgP_TpdQlDdwCXW-nC4GSdg0km9qdv2navQcKdYEmd6nRg/formResponse",
+  "entryMapping": {
+    "role": "entry.114133835",
+    "company_size": "entry.598320204",
+    "regions": "entry.280504823",
+    "volume": "entry.146339045",
+    "channels": "entry.662039776",
+    "problems": "entry.101375294",
+    "severity": "entry.1520249981",
+    "cost": "entry.935858128",
+    "current_stack": "entry.1264028449",
+    "likelihood": "entry.1329667687",
+    "top_features": "entry.387879700",
+    "barriers": "entry.1245206221",
+    "budget": "entry.795204688",
+    "price_too_high": "entry.2061795351",
+    "price_too_low": "entry.1105171413",
+    "addons": "entry.51765899",
+    "early_access": "entry.750509737",
+    "email": "entry.1641260076",
+    "comments": "entry.1972449904"
+  }
 }
