@@ -126,7 +126,7 @@ function SetupPage() {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Neupo Control Plane</div>
+              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Veupo Control Plane</div>
               <h1 className="text-xl font-bold text-white tracking-tight">Admin & Form Setup</h1>
             </div>
           </div>
@@ -224,7 +224,7 @@ function SetupPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Configuring Neupo Connection...</span>
+                    <span>Configuring Veupo Connection...</span>
                   </>
                 ) : (
                   <>
@@ -268,7 +268,7 @@ function SetupPage() {
 
           <div className="mt-12 pt-6 border-t border-white/5 text-center">
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/30">
-              Neupo · Project Camry · Secure Auth Loop
+              Veupo · Project Camry · Secure Auth Loop
             </p>
           </div>
         </div>
@@ -654,7 +654,7 @@ function MainForm() {
       <div className="wrap">
         <header>
           <h1>One API for<br /><span className="grad">every notification<br/>you send</span></h1>
-          <p className="sub">Neupo is the single API your product calls to deliver <b>OTPs,<br/>alerts and campaigns</b> across SMS, WhatsApp, push and email<br/>— every provider, every market, behind one integration.</p>
+          <p className="sub">Veupo is the single API your product calls to deliver <b>OTPs,<br/>alerts and campaigns</b> across SMS, WhatsApp, push and email<br/>— every provider, every market, behind one integration.</p>
           
           <div className="flex flex-col sm:flex-row items-stretch justify-center gap-6 mt-12 mb-4 max-w-4xl mx-auto">
             <div className="card !m-0 !p-6 text-left relative z-10 flex-1">
@@ -670,7 +670,7 @@ function MainForm() {
             </div>
 
             <div className="card solution !m-0 !p-6 text-left relative z-10 flex-1">
-              <p className="eyebrow !text-[var(--sig-cyan)] !mb-4 tracking-widest text-[11px]">WITH NEUPO</p>
+              <p className="eyebrow !text-[var(--sig-cyan)] !mb-4 tracking-widest text-[11px]">WITH VEUPO</p>
               <p className="text-[13.5px] leading-[1.6] text-[var(--text)] m-0">One <code className="bg-white/5 px-1.5 py-0.5 rounded text-[13px] font-mono text-[var(--sig-magenta)]">POST /send</code>. Every channel, provider and market behind a single integration.</p>
             </div>
           </div>
@@ -696,7 +696,7 @@ function MainForm() {
           </div>
           <div className="card solution">
             <p className="eyebrow">◆ THE FIX</p>
-            <h3>One call sends it everywhere —<br/>Neupo handles the rest</h3>
+            <h3>One call sends it everywhere —<br/>Veupo handles the rest</h3>
             <ul>
               <li>One endpoint for SMS, WhatsApp, push &<br/>email — every provider behind it</li>
               <li>Automatic failover, cost-based routing &<br/>exactly-once delivery, built in</li>
@@ -712,7 +712,7 @@ function MainForm() {
         </section>
 
         <div className="leadin">
-          <p>We're building Neupo now and want it shaped around <span className="k">your</span> reality. Five<br/>minutes of honest answers decides what ships first. <span className="k">No sales follow-up<br/>unless you ask.</span></p>
+          <p>We're building Veupo now and want it shaped around <span className="k">your</span> reality. Five<br/>minutes of honest answers decides what ships first. <span className="k">No sales follow-up<br/>unless you ask.</span></p>
         </div>
 
         <div className="form-shell">
@@ -744,7 +744,7 @@ function MainForm() {
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-white">Google Form Connection Required</h3>
                 <p className="text-sm text-white/60 max-w-md mx-auto leading-relaxed">
-                  Neupo is designed to submit feedback directly to your Google Form. 
+                  Veupo is designed to submit feedback directly to your Google Form. 
                   Please run the administrator setup to link a Google Form.
                 </p>
               </div>
@@ -911,7 +911,7 @@ function MainForm() {
                 {/* STEP 3 */}
                 <div className={`step ${step === 3 ? "active" : ""}`} data-step="3">
                   <div className="q" data-key="likelihood" data-required>
-                    <label className="qlabel">If Neupo existed today, how likely would you be to try it?<span className="req">*</span></label>
+                    <label className="qlabel">If Veupo existed today, how likely would you be to try it?<span className="req">*</span></label>
                     <p className="hint">0 = wouldn't touch it · 10 = take my integration now.</p>
                     <div className="scale ten">
                       {[0,1,2,3,4,5,6,7,8,9,10].map(v => (
@@ -941,7 +941,7 @@ function MainForm() {
                   </div>
 
                   <div className="q" data-key="barriers">
-                    <label className="qlabel">What would stop you from adopting something like Neupo?</label>
+                    <label className="qlabel">What would stop you from adopting something like Veupo?</label>
                     <div className="opts grid">
                       {["Migration effort", "Vendor lock-in concern", "Trust / reliability of a new vendor", "Price", "Security / data privacy", "Nothing major — we'd try it"].map(v => (
                         <label className="opt" key={v}>
@@ -971,7 +971,7 @@ function MainForm() {
                   </div>
 
                   <div className="q" data-key="price_too_high" data-required>
-                    <label className="qlabel">At what per-1,000-requests price would Neupo feel too expensive to justify?<span className="req">*</span></label>
+                    <label className="qlabel">At what per-1,000-requests price would Veupo feel too expensive to justify?<span className="req">*</span></label>
                     <div className="opts grid">
                       {["Over $0.10 / 1K", "Over $0.50 / 1K", "Over $1 / 1K", "Over $5 / 1K"].map(v => (
                         <label className="opt" data-type="radio" key={v}>
@@ -1072,7 +1072,7 @@ function MainForm() {
           )}
         </div>
 
-        <footer>NEUPO · PROJECT CAMRY — built for the signals that can't drop</footer>
+        <footer>VEUPO · PROJECT CAMRY — built for the signals that can't drop</footer>
       </div>
     </>
   );
