@@ -1,7 +1,8 @@
 import React, { useState, useEffect, FormEvent } from "react";
 import confetti from "canvas-confetti";
 import { Loader2, ShieldCheck, Link, ExternalLink, FileJson, CheckCircle, Download, Copy, Check } from "lucide-react";
-import { googleSignIn } from "./firebase";
+import { googleSignIn, db, initFirebase } from "./firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import formConfigFallback from "../form_config.json";
 
 function SetupPage() {
@@ -67,6 +68,11 @@ function SetupPage() {
       setIsSuccess(true);
       setMessage("Google Form successfully created and permanently linked to your account! The app is now configured.");
       localStorage.setItem("veupo_form_config", JSON.stringify(data));
+      try {
+        await setDoc(doc(db, "config", "form"), data);
+      } catch (fbErr) {
+        console.error("Failed to save config to Firestore:", fbErr);
+      }
       
       confetti({
         particleCount: 80,
@@ -372,16 +378,46 @@ function MainForm() {
   }, [step, submitting]);
 
   useEffect(() => {
-    fetch("/api/config")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (data && data.configured) {
-          setConfig(data);
-        } else {
-          // Check localStorage fallback
+    const fetchConfig = async () => {
+      try {
+        await initFirebase();
+        const docSnap = await getDoc(doc(db, "config", "form"));
+        if (docSnap.exists() && docSnap.data().configured) {
+          setConfig(docSnap.data());
+          setLoadingConfig(false);
+          return;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch config from Firestore", e);
+      }
+
+      fetch("/api/config")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (data && data.configured) {
+            setConfig(data);
+          } else {
+            // Check localStorage fallback
+            const localConfig = localStorage.getItem("veupo_form_config");
+            if (localConfig) {
+              try {
+                const parsed = JSON.parse(localConfig);
+                if (parsed && parsed.configured) {
+                  setConfig(parsed);
+                  return;
+                }
+              } catch {}
+            }
+            if (formConfigFallback && formConfigFallback.configured) {
+              setConfig(formConfigFallback);
+            }
+          }
+        })
+        .catch((err) => {
+          console.warn("Dynamic config fetch failed, checking local fallbacks:", err);
           const localConfig = localStorage.getItem("veupo_form_config");
           if (localConfig) {
             try {
@@ -395,25 +431,11 @@ function MainForm() {
           if (formConfigFallback && formConfigFallback.configured) {
             setConfig(formConfigFallback);
           }
-        }
-      })
-      .catch((err) => {
-        console.warn("Dynamic config fetch failed, checking local fallbacks:", err);
-        const localConfig = localStorage.getItem("veupo_form_config");
-        if (localConfig) {
-          try {
-            const parsed = JSON.parse(localConfig);
-            if (parsed && parsed.configured) {
-              setConfig(parsed);
-              return;
-            }
-          } catch {}
-        }
-        if (formConfigFallback && formConfigFallback.configured) {
-          setConfig(formConfigFallback);
-        }
-      })
-      .finally(() => setLoadingConfig(false));
+        })
+        .finally(() => setLoadingConfig(false));
+    };
+
+    fetchConfig();
   }, []);
 
   // Restore form state

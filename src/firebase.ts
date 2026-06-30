@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 let firebaseConfig = {};
 try {
@@ -8,6 +9,7 @@ try {
 
 let app: any;
 export let auth: any;
+export let db: Firestore;
 const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/forms.body');
 
@@ -25,11 +27,13 @@ export const initFirebase = async () => {
     firebaseConfig = config;
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
   } catch (err: any) {
     console.error('Failed to initialize Firebase:', err);
     throw new Error(err.message || 'Firebase initialization failed. Please check your Firebase configuration setup.');
   }
 };
+
 
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string } | null> => {
   await initFirebase();
