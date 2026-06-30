@@ -959,7 +959,7 @@ function MainForm() {
                   <div className="q" data-key="budget" data-required>
                     <label className="qlabel">What monthly platform budget would this realistically sit in?<span className="req">*</span></label>
                     <div className="opts">
-                      {["Free tier only", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"].map(v => (
+                      {["Free tier only", "Under $50 / mo", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"].map(v => (
                         <label className="opt" data-type="radio" key={v}>
                           <input type="radio" name="budget" value={v} />
                           <span className="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
