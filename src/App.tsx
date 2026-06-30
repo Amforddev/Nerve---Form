@@ -659,6 +659,12 @@ function MainForm() {
           },
         });
       } else {
+        const isDevEnv = window.location.hostname.includes("run.app") || window.location.hostname === "localhost";
+        
+        if (!isDevEnv) {
+          throw new Error("Form is not connected. Please deploy the latest updates to Vercel (your current deployment is missing the configured form_config.json).");
+        }
+
         // Fallback to local server proxy in dev environments
         const res = await fetch("/api/submit", {
           method: "POST",
