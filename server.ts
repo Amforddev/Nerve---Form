@@ -73,12 +73,12 @@ app.post("/api/setup-form", async (req, res) => {
       { key: "likelihood", title: "If Veupo existed today, how likely would you be to try it?", type: "SCALE", required: true, low: 0, high: 10, lowLabel: "Not interested", highLabel: "Take my money" },
       { key: "top_features", title: "Which capabilities would actually move the needle for you?", type: "CHECKBOX", required: true, options: ["Single unified API across all channels", "Smart failover & cost-based routing", "1M RPS hyperscale ingestion", "Built-in compliance & DND checks", "AI send-time optimization & dedup", "Unified analytics & delivery tracking", "MCP / AI-agent developer integration"] },
       { key: "barriers", title: "What would stop you from adopting something like Veupo?", type: "CHECKBOX", required: false, options: ["Migration effort", "Vendor lock-in concern", "Trust / reliability of a new vendor", "Price", "Security / data privacy", "Nothing major — we'd try it"] },
-      { key: "budget", title: "What monthly platform budget would this realistically sit in?", type: "RADIO", required: true, options: ["Free tier only", "Under $50 / mo", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"] },
+      { key: "budget", title: "What monthly platform budget would this realistically sit in?", type: "RADIO", required: true, options: ["Free tier only", "Under $10 / mo", "Under $20 / mo", "Under $50 / mo", "Under $100 / mo", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)", "Custom"] },
       { key: "price_too_high", title: "At what per-1,000-requests price would Veupo feel too expensive to justify?", type: "RADIO", required: true, options: ["Over $0.10 / 1K", "Over $0.50 / 1K", "Over $1 / 1K", "Over $5 / 1K"] },
       { key: "price_too_low", title: "And at what price would it feel too cheap to trust at scale?", type: "RADIO", required: true, options: ["Under $0.01 / 1K", "Under $0.05 / 1K", "Under $0.10 / 1K", "Price doesn't signal trust to me"] },
       { key: "addons", title: "Which premium add-ons would you actually pay extra for?", type: "CHECKBOX", required: false, options: ["AI send-time optimization", "Vaultless tokenization / compliance suite", "Multi-region data residency", "Visual workflow / journey builder", "Priority support / custom SLA", "None — base platform is enough"] },
       { key: "early_access", title: "Want early access & a say in the roadmap?", type: "RADIO", required: true, options: ["Yes — count me in for early access", "Maybe — keep me posted", "No thanks — just sharing input"] },
-      { key: "email", title: "Email", type: "TEXT", required: false, paragraph: false },
+      { key: "email", title: "Email", type: "TEXT", required: true, paragraph: false },
       { key: "comments", title: "Anything we're missing? The thing we should've asked?", type: "TEXT", required: false, paragraph: true }
     ];
 
@@ -87,7 +87,7 @@ app.post("/api/setup-form", async (req, res) => {
       if (q.type === "RADIO" || q.type === "CHECKBOX") {
         questionDef.choiceQuestion = {
           type: q.type,
-          options: q.options!.map(v => ({ value: v }))
+          options: q.options!.map(v => (v === "Other" || v === "Custom") ? { isOther: true } : { value: v })
         };
       } else if (q.type === "TEXT") {
         questionDef.textQuestion = { paragraph: q.paragraph };

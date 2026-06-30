@@ -476,6 +476,13 @@ function MainForm() {
     const formData = new FormData(form);
     const data: Record<string, string | string[]> = {};
     formData.forEach((val, key) => {
+      if (key === 'role_custom' || key === 'budget_custom') return;
+      if (key === 'role' && val === '__other_option__') {
+        val = formData.get('role_custom') as string || 'Other';
+      }
+      if (key === 'budget' && val === '__other_option__') {
+        val = formData.get('budget_custom') as string || 'Custom';
+      }
       if (data[key]) {
         if (Array.isArray(data[key])) {
           (data[key] as string[]).push(val as string);
@@ -506,7 +513,17 @@ function MainForm() {
           
           let qValid = false;
           if (type === "radio") {
-            qValid = Array.from(inputs).some((i: any) => i.checked);
+            const checkedInput = Array.from(inputs).find((i: any) => i.checked) as HTMLInputElement;
+            if (checkedInput) {
+              if (checkedInput.dataset.isOther) {
+                const customInput = form.querySelector(`input[name="${key}_custom"]`) as HTMLInputElement;
+                qValid = !!customInput && customInput.value.trim() !== "";
+              } else {
+                qValid = true;
+              }
+            } else {
+              qValid = false;
+            }
           } else if (type === "checkbox") {
             const min = parseInt(q.dataset.min || "1", 10);
             qValid = Array.from(inputs).filter((i: any) => i.checked).length >= min;
@@ -572,6 +589,13 @@ function MainForm() {
       const formData = new FormData(form);
       const data: Record<string, string | string[]> = {};
       formData.forEach((val, key) => {
+        if (key === 'role_custom' || key === 'budget_custom') return;
+        if (key === 'role' && val === '__other_option__') {
+          val = formData.get('role_custom') as string || 'Other';
+        }
+        if (key === 'budget' && val === '__other_option__') {
+          val = formData.get('budget_custom') as string || 'Custom';
+        }
         if (data[key]) {
           if (Array.isArray(data[key])) {
             (data[key] as string[]).push(val as string);
@@ -790,13 +814,21 @@ function MainForm() {
                     <label className="qlabel">What's your role?<span className="req">*</span></label>
                     <p className="hint">Helps us read your answers in context.</p>
                     <div className="opts grid">
-                      {["CEO / Founder", "CTO / VP Engineering", "Engineering / Dev Manager", "Software Engineer", "Product Manager", "Other"].map(v => (
+                      {["CEO / Founder", "CTO / VP Engineering", "Engineering / Dev Manager", "Software Engineer", "Product Manager"].map(v => (
                         <label className="opt" data-type="radio" key={v}>
                           <input type="radio" name="role" value={v} />
                           <span className="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
                           <span className="otext">{v}</span>
                         </label>
                       ))}
+                      <label className="opt" data-type="radio" key="Other">
+                        <input type="radio" name="role" value="__other_option__" data-is-other="true" />
+                        <span className="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                        <span className="otext">Other</span>
+                      </label>
+                    </div>
+                    <div id="role_other_wrapper" className="mt-4">
+                      <input type="text" name="role_custom" className="text-input" placeholder="Please specify your role..." />
                     </div>
                     <p className="err">Pick the closest one.</p>
                   </div>
@@ -959,13 +991,21 @@ function MainForm() {
                   <div className="q" data-key="budget" data-required>
                     <label className="qlabel">What monthly platform budget would this realistically sit in?<span className="req">*</span></label>
                     <div className="opts">
-                      {["Free tier only", "Under $50 / mo", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"].map(v => (
+                      {["Free tier only", "Under $10 / mo", "Under $20 / mo", "Under $50 / mo", "Under $100 / mo", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"].map(v => (
                         <label className="opt" data-type="radio" key={v}>
                           <input type="radio" name="budget" value={v} />
                           <span className="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
                           <span className="otext">{v}</span>
                         </label>
                       ))}
+                      <label className="opt" data-type="radio" key="Custom">
+                        <input type="radio" name="budget" value="__other_option__" data-is-other="true" />
+                        <span className="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                        <span className="otext">Custom</span>
+                      </label>
+                    </div>
+                    <div id="budget_other_wrapper" className="mt-4">
+                      <input type="text" name="budget_custom" className="text-input" placeholder="Please specify your budget..." />
                     </div>
                     <p className="err">Pick the band that fits.</p>
                   </div>
@@ -1026,9 +1066,9 @@ function MainForm() {
                     <p className="err">Let us know.</p>
                   </div>
 
-                  <div className="q" data-key="email">
-                    <label className="qlabel">Email <span className="em" style={{ color: "var(--muted-2)", fontWeight: 400 }}>(only if you want us to reach out)</span></label>
-                    <input type="email" name="email" placeholder="you@company.com" />
+                  <div className="q" data-key="email" data-required="true">
+                    <label className="qlabel">Email <span className="req">*</span></label>
+                    <input type="email" name="email" placeholder="you@company.com" required />
                     <p className="err">That doesn't look like an email.</p>
                   </div>
 

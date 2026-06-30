@@ -207,6 +207,16 @@ button { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 
 .btn-go:hover { background-position: 100% 0; transform: translateY(-1px); }
 .btn-go:disabled { opacity: .6; pointer-events: none; }
 
+#role_other_wrapper, #budget_other_wrapper {
+  display: none;
+}
+#veupoForm:has(input[name="role"][data-is-other="true"]:checked) #role_other_wrapper {
+  display: block;
+}
+#veupoForm:has(input[name="budget"][data-is-other="true"]:checked) #budget_other_wrapper {
+  display: block;
+}
+
 .done { display: none; text-align: center; padding: 60px 26px 64px; animation: slidein .5s ease; }
 .done.show { display: block; }
 .done .ring { width: 74px; height: 74px; border-radius: 50%; margin: 0 auto 22px; display: grid; place-items: center;
