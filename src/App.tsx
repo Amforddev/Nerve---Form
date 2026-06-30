@@ -297,7 +297,8 @@ export default function App() {
   }, []);
 
   // Hidden admin setup path / search parameter
-  if (path === "/setup-admin" || search === "?setup=admin") {
+  const isDevEnv = window.location.hostname.includes("run.app") || window.location.hostname === "localhost";
+  if ((path === "/setup-admin" || search === "?setup=admin") && isDevEnv) {
     return <SetupPage />;
   }
 
@@ -782,7 +783,7 @@ function MainForm() {
                 </div>
               </div>
             </div>
-          ) : !config || !config.configured ? (
+          ) : (!config || !config.configured) && (window.location.hostname.includes("run.app") || window.location.hostname === "localhost") ? (
             <div className="p-8 text-center text-[#A0A5B5] space-y-6">
               <div className="w-12 h-12 rounded-full bg-[#ff2e97]/10 border border-[#ff2e97]/20 flex items-center justify-center mx-auto text-[#ff2e97]">
                 <Link className="w-6 h-6" />
