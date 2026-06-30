@@ -66,7 +66,7 @@ function SetupPage() {
       setConfigResult(data);
       setIsSuccess(true);
       setMessage("Google Form successfully created and permanently linked to your account! The app is now configured.");
-      localStorage.setItem("nerve_form_config", JSON.stringify(data));
+      localStorage.setItem("veupo_form_config", JSON.stringify(data));
       
       confetti({
         particleCount: 80,
@@ -382,7 +382,7 @@ function MainForm() {
           setConfig(data);
         } else {
           // Check localStorage fallback
-          const localConfig = localStorage.getItem("nerve_form_config");
+          const localConfig = localStorage.getItem("veupo_form_config");
           if (localConfig) {
             try {
               const parsed = JSON.parse(localConfig);
@@ -399,7 +399,7 @@ function MainForm() {
       })
       .catch((err) => {
         console.warn("Dynamic config fetch failed, checking local fallbacks:", err);
-        const localConfig = localStorage.getItem("nerve_form_config");
+        const localConfig = localStorage.getItem("veupo_form_config");
         if (localConfig) {
           try {
             const parsed = JSON.parse(localConfig);
@@ -419,15 +419,15 @@ function MainForm() {
   // Restore form state
   useEffect(() => {
     if (!loadingConfig && config) {
-      const savedStep = localStorage.getItem("nerve_form_step");
+      const savedStep = localStorage.getItem("veupo_form_step");
       if (savedStep) {
         setStep(parseInt(savedStep, 10));
       }
-      const savedData = localStorage.getItem("nerve_form_data");
+      const savedData = localStorage.getItem("veupo_form_data");
       if (savedData) {
         try {
           const parsed = JSON.parse(savedData);
-          const form = document.getElementById("nerveForm") as HTMLFormElement;
+          const form = document.getElementById("veupoForm") as HTMLFormElement;
           if (form) {
             Object.entries(parsed).forEach(([key, val]) => {
               const inputs = form.querySelectorAll(`[name="${key}"]`);
@@ -454,7 +454,7 @@ function MainForm() {
 
   // Persist step
   useEffect(() => {
-    localStorage.setItem("nerve_form_step", step.toString());
+    localStorage.setItem("veupo_form_step", step.toString());
   }, [step]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -486,7 +486,7 @@ function MainForm() {
         data[key] = val as string;
       }
     });
-    localStorage.setItem("nerve_form_data", JSON.stringify(data));
+    localStorage.setItem("veupo_form_data", JSON.stringify(data));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -632,8 +632,8 @@ function MainForm() {
       }
       setDone(true);
       playSuccessChime();
-      localStorage.removeItem("nerve_form_data");
-      localStorage.removeItem("nerve_form_step");
+      localStorage.removeItem("veupo_form_data");
+      localStorage.removeItem("veupo_form_step");
       confetti({
         particleCount: 100,
         spread: 70,
@@ -783,7 +783,7 @@ function MainForm() {
                 <div className="bar"><i className={pulse ? "pulse-anim" : ""} style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}></i></div>
               </div>
 
-              <form id="nerveForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
+              <form id="veupoForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
                 {/* STEP 1 */}
                 <div className={`step ${step === 1 ? "active" : ""}`} data-step="1">
                   <div className="q" data-key="role" data-required>

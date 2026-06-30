@@ -36,8 +36,8 @@ app.post("/api/setup-form", async (req, res) => {
       },
       body: JSON.stringify({
         info: {
-          title: "Nerve Validations",
-          documentTitle: "Nerve Form Responses",
+          title: "Veupo Validations",
+          documentTitle: "Veupo Form Responses",
         },
       }),
     });
@@ -70,11 +70,11 @@ app.post("/api/setup-form", async (req, res) => {
       { key: "severity", title: "How much pain does notification infrastructure cause your team?", type: "SCALE", required: true, low: 1, high: 5, lowLabel: "Non-issue", highLabel: "Recurring fire" },
       { key: "cost", title: "Where does that pain show up as real cost?", type: "CHECKBOX", required: false, options: ["Engineering hours / maintenance", "Lost revenue from failed/late messages", "Overspend on message routing", "Compliance fines / legal exposure", "User churn from notification fatigue", "Doesn't really cost us much"] },
       { key: "current_stack", title: "What are you using today to solve this?", type: "TEXT", required: false, paragraph: false },
-      { key: "likelihood", title: "If Nerve existed today, how likely would you be to try it?", type: "SCALE", required: true, low: 0, high: 10, lowLabel: "Not interested", highLabel: "Take my money" },
+      { key: "likelihood", title: "If Veupo existed today, how likely would you be to try it?", type: "SCALE", required: true, low: 0, high: 10, lowLabel: "Not interested", highLabel: "Take my money" },
       { key: "top_features", title: "Which capabilities would actually move the needle for you?", type: "CHECKBOX", required: true, options: ["Single unified API across all channels", "Smart failover & cost-based routing", "1M RPS hyperscale ingestion", "Built-in compliance & DND checks", "AI send-time optimization & dedup", "Unified analytics & delivery tracking", "MCP / AI-agent developer integration"] },
-      { key: "barriers", title: "What would stop you from adopting something like Nerve?", type: "CHECKBOX", required: false, options: ["Migration effort", "Vendor lock-in concern", "Trust / reliability of a new vendor", "Price", "Security / data privacy", "Nothing major — we'd try it"] },
+      { key: "barriers", title: "What would stop you from adopting something like Veupo?", type: "CHECKBOX", required: false, options: ["Migration effort", "Vendor lock-in concern", "Trust / reliability of a new vendor", "Price", "Security / data privacy", "Nothing major — we'd try it"] },
       { key: "budget", title: "What monthly platform budget would this realistically sit in?", type: "RADIO", required: true, options: ["Free tier only", "Under $200 / mo", "$200 – $1,000 / mo", "$1,000 – $5,000 / mo", "$5,000+ / mo (enterprise)"] },
-      { key: "price_too_high", title: "At what per-1,000-requests price would Nerve feel too expensive to justify?", type: "RADIO", required: true, options: ["Over $0.10 / 1K", "Over $0.50 / 1K", "Over $1 / 1K", "Over $5 / 1K"] },
+      { key: "price_too_high", title: "At what per-1,000-requests price would Veupo feel too expensive to justify?", type: "RADIO", required: true, options: ["Over $0.10 / 1K", "Over $0.50 / 1K", "Over $1 / 1K", "Over $5 / 1K"] },
       { key: "price_too_low", title: "And at what price would it feel too cheap to trust at scale?", type: "RADIO", required: true, options: ["Under $0.01 / 1K", "Under $0.05 / 1K", "Under $0.10 / 1K", "Price doesn't signal trust to me"] },
       { key: "addons", title: "Which premium add-ons would you actually pay extra for?", type: "CHECKBOX", required: false, options: ["AI send-time optimization", "Vaultless tokenization / compliance suite", "Multi-region data residency", "Visual workflow / journey builder", "Priority support / custom SLA", "None — base platform is enough"] },
       { key: "early_access", title: "Want early access & a say in the roadmap?", type: "RADIO", required: true, options: ["Yes — count me in for early access", "Maybe — keep me posted", "No thanks — just sharing input"] },

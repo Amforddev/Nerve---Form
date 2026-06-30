@@ -1,6 +1,6 @@
 {
-  "name": "Nerve - Form",
-  "description": "Nerve - Form",
+  "name": "Veupo - Form",
+  "description": "Veupo - Form",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
