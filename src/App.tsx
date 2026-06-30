@@ -18,6 +18,67 @@ function SetupPage() {
     setInIframe(window.self !== window.top);
   }, []);
 
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        await initFirebase();
+        if (db) {
+          const docSnap = await getDoc(doc(db, "config", "form"));
+          if (docSnap.exists() && docSnap.data().configured) {
+            setConfigResult(docSnap.data());
+            setIsSuccess(true);
+            setMessage("Configuration loaded from database. The form is connected.");
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to fetch config from Firestore", e);
+      }
+
+      fetch("/api/config")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (data && data.configured) {
+            setConfigResult(data);
+            setIsSuccess(true);
+            setMessage("Configuration loaded. The form is connected.");
+          } else {
+            const localConfig = localStorage.getItem("veupo_form_config");
+            if (localConfig) {
+              try {
+                const parsed = JSON.parse(localConfig);
+                if (parsed && parsed.configured) {
+                  setConfigResult(parsed);
+                  setIsSuccess(true);
+                  setMessage("Configuration loaded from local storage. The form is connected.");
+                  return;
+                }
+              } catch {}
+            }
+          }
+        })
+        .catch((err) => {
+          console.warn("Dynamic config fetch failed:", err);
+          const localConfig = localStorage.getItem("veupo_form_config");
+          if (localConfig) {
+            try {
+              const parsed = JSON.parse(localConfig);
+              if (parsed && parsed.configured) {
+                setConfigResult(parsed);
+                setIsSuccess(true);
+                setMessage("Configuration loaded from local storage. The form is connected.");
+              }
+            } catch {}
+          }
+        });
+    };
+
+    fetchConfig();
+  }, []);
+
   const handleCopy = () => {
     if (!configResult) return;
     navigator.clipboard.writeText(JSON.stringify(configResult, null, 2));
@@ -306,6 +367,7 @@ export default function App() {
 }
 
 function MainForm() {
+  const isDevEnv = window.location.hostname.includes("run.app") || window.location.hostname === "localhost";
   const [config, setConfig] = useState<any>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
 
@@ -382,11 +444,13 @@ function MainForm() {
     const fetchConfig = async () => {
       try {
         await initFirebase();
-        const docSnap = await getDoc(doc(db, "config", "form"));
-        if (docSnap.exists() && docSnap.data().configured) {
-          setConfig(docSnap.data());
-          setLoadingConfig(false);
-          return;
+        if (db) {
+          const docSnap = await getDoc(doc(db, "config", "form"));
+          if (docSnap.exists() && docSnap.data().configured) {
+            setConfig(docSnap.data());
+            setLoadingConfig(false);
+            return;
+          }
         }
       } catch (e) {
         console.warn("Failed to fetch config from Firestore", e);
@@ -837,6 +901,17 @@ function MainForm() {
               </div>
 
               <form id="veupoForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
+                {isDevEnv && (
+                  <div className="absolute top-4 right-4 z-50 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => window.location.search = "?setup=admin"}
+                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium border border-white/20"
+                    >
+                      Admin Setup
+                    </button>
+                  </div>
+                )}
                 {/* STEP 1 */}
                 <div className={`step ${step === 1 ? "active" : ""}`} data-step="1">
                   <div className="q" data-key="role" data-required>
