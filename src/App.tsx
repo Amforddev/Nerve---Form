@@ -563,13 +563,6 @@ function MainForm() {
     const formData = new FormData(form);
     const data: Record<string, string | string[]> = {};
     formData.forEach((val, key) => {
-      if (key === 'role_custom' || key === 'budget_custom') return;
-      if (key === 'role' && val === '__other_option__') {
-        val = formData.get('role_custom') as string || 'Other';
-      }
-      if (key === 'budget' && val === '__other_option__') {
-        val = formData.get('budget_custom') as string || 'Custom';
-      }
       if (data[key]) {
         if (Array.isArray(data[key])) {
           (data[key] as string[]).push(val as string);
@@ -587,7 +580,7 @@ function MainForm() {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
 
-    if (step < TOTAL_STEPS) {
+    if (step <= TOTAL_STEPS) {
       const stepEl = form.querySelector(`.step[data-step="${step}"]`);
       if (stepEl) {
         let valid = true;
@@ -665,9 +658,12 @@ function MainForm() {
           return;
         }
       }
-      setStep((s) => s + 1);
-      window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
-      return;
+      
+      if (step < TOTAL_STEPS) {
+        setStep((s) => s + 1);
+        window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -676,13 +672,6 @@ function MainForm() {
       const formData = new FormData(form);
       const data: Record<string, string | string[]> = {};
       formData.forEach((val, key) => {
-        if (key === 'role_custom' || key === 'budget_custom') return;
-        if (key === 'role' && val === '__other_option__') {
-          val = formData.get('role_custom') as string || 'Other';
-        }
-        if (key === 'budget' && val === '__other_option__') {
-          val = formData.get('budget_custom') as string || 'Custom';
-        }
         if (data[key]) {
           if (Array.isArray(data[key])) {
             (data[key] as string[]).push(val as string);
@@ -707,7 +696,12 @@ function MainForm() {
             });
           } else {
             if (val !== undefined && val !== null && val !== "") {
-              params.append(entryId, String(val));
+              if (val === '__other_option__') {
+                params.append(entryId, '__other_option__');
+                params.append(`${entryId}.other_option_response`, String(formData.get(`${key}_custom`) || ''));
+              } else {
+                params.append(entryId, String(val));
+              }
             }
           }
         }
